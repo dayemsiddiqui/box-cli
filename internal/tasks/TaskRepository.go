@@ -63,3 +63,13 @@ func (r *TaskRepository) GetAllTasks() ([]*Task, error) {
 	}
 	return tasks, nil
 }
+
+
+func (r *TaskRepository) DeleteAllTasks() error {
+	query, args, err := sq.Delete("tasks").ToSql()
+	if err != nil {
+		return err
+	}
+	_, err = r.db.Exec(query, args...)
+	return err
+}

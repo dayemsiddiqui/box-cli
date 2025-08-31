@@ -47,6 +47,15 @@ var listTaskCmd = &cobra.Command{
 	},
 }
 
+var clearTasksCmd = &cobra.Command{
+	Use:   "clear",
+	Short: "Clear all tasks",
+	Long: `Clear all tasks`,
+	Run: func(cmd *cobra.Command, args []string) {
+		tasks.DeleteAllTasksAction()
+	},
+}
+
 // taskCmd represents the task command
 var taskCmd = &cobra.Command{
 	Use:   "task",
@@ -62,7 +71,7 @@ func init() {
 
 	taskCmd.AddCommand(addTaskCmd)
 	taskCmd.AddCommand(listTaskCmd)
-
+	taskCmd.AddCommand(clearTasksCmd)
 	// Here you will define your flags and configuration settings.
 
 	// Cobra supports Persistent Flags which will work for this command

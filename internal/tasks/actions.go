@@ -25,3 +25,10 @@ func GetAllTasksAction() ([]*Task, error) {
 	taskRepository := NewTaskRepository(db)
 	return taskRepository.GetAllTasks()
 }
+
+func DeleteAllTasksAction() error {
+	db := db.EnsureDB()
+	defer db.Close()
+	taskRepository := NewTaskRepository(db)
+	return taskRepository.DeleteAllTasks()
+}
