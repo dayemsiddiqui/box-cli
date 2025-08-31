@@ -2,6 +2,8 @@ package tasks
 
 import (
 	"database/sql"
+
+	sq "github.com/Masterminds/squirrel"
 )
 
 
@@ -14,14 +16,22 @@ func NewTaskRepository(db *sql.DB) *TaskRepository {
 }
 
 func (r *TaskRepository) SaveTask(task *Task) error {
-	_, err := r.db.Exec("INSERT INTO tasks (id, name, description, created_at, updated_at) VALUES (?, ?, ?, ?, ?)", task.ID, task.Title, task.Description, task.CreatedAt, task.UpdatedAt)
+	query, args, err := sq.Insert("tasks").Columns("id", "name", "description", "created_at", "updated_at").Values(task.ID, task.Title, task.Description, task.CreatedAt, task.UpdatedAt).ToSql()
+	if err != nil {
+		return err
+	}
+	_, err = r.db.Exec(query, args...)
 	return err
 }
 
 func (r *TaskRepository) GetTask(id string) (*Task, error) {
-	row := r.db.QueryRow("SELECT id, name, description, created_at, updated_at FROM tasks WHERE id = ?", id)
+	query, args, err := sq.Select("id", "name", "description", "created_at", "updated_at").From("tasks").Where(sq.Eq{"id": id}).ToSql()
+	if err != nil {
+		return nil, err
+	}
+	row := r.db.QueryRow(query, args...)
 	task := &Task{}
-	err := row.Scan(&task.ID, &task.Title, &task.Description, &task.CreatedAt, &task.UpdatedAt)
+	err = row.Scan(&task.ID, &task.Title, &task.Description, &task.CreatedAt, &task.UpdatedAt)
 	if err != nil {
 		return nil, err
 	}
@@ -29,7 +39,11 @@ func (r *TaskRepository) GetTask(id string) (*Task, error) {
 }
 
 func (r *TaskRepository) GetAllTasks() ([]*Task, error) {
-	rows, err := r.db.Query("SELECT id, name, description, created_at, updated_at FROM tasks")
+	query, args, err := sq.Select("id", "name", "description", "created_at", "updated_at").From("tasks").ToSql()
+	if err != nil {
+		return nil, err
+	}
+	rows, err := r.db.Query(query, args...)
 	if err != nil {
 		return nil, err
 	}
@@ -40,6 +54,10 @@ func (r *TaskRepository) GetAllTasks() ([]*Task, error) {
 		err := rows.Scan(&task.ID, &task.Title, &task.Description, &task.CreatedAt, &task.UpdatedAt)
 		if err != nil {
 			return nil, err
+		}
+		// If the description is null, set it to an empty string
+		if task.Description == "" {
+			task.Description = ""
 		}
 		tasks = append(tasks, task)
 	}
