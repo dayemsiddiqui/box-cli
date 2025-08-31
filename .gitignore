@@ -37,3 +37,6 @@ go.work.sum
 *.db-wal
 *.db-journal
 *.db-trace
+
+# Binary
+box
