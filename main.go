@@ -4,16 +4,14 @@ Copyright © 2025 NAME HERE <EMAIL ADDRESS>
 package main
 
 import (
-	"os"
-
 	"github.com/dayemsiddiqui/box-cli/cmd"
 	"github.com/dayemsiddiqui/box-cli/internal/db"
+	_ "github.com/joho/godotenv/autoload"
 )
 
 func main() {
 
-	dbURL := os.Getenv("DB_URL")
-	database := db.MustConnect(dbURL)
+	database := db.EnsureDB()
 	defer database.Close()
 	
 	
